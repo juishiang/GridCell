@@ -41,23 +41,16 @@ func (gr *Grid_cell) Init(cyc, x1off, y1off, spsiz, hm, hd, pd float64) bool {
 	for i := range gr.Mh {
 		gr.Mh[i] = make([]float64, int(gr.cycle*3))
 	}
-	//	for i :=0;i<(gr.cycle+2.0);i++{
-	//		for j:=0;j<(gr.cycle+2.0);j++{
-	//			gr.M_h[i][j]=0.0
-	//		}
-	//	}
 	return true
 }
 
 func (gr *Grid_cell) TDelta(x, y float64) (x1, y1 float64) {
-	//M = (1/k)[[1 (-1)/(sqrt(3))];[0 2/(sqrt(3))]]
 	x1 = (1 / gr.k) * (x - y*(1/(math.Sqrt(3))))
 	y1 = (1 / gr.k) * y * (2 / math.Sqrt(3))
 	return
 }
 
 func (gr *Grid_cell) TDeltaInv(x1, y1 float64) (x, y float64) {
-	//M_inv = k[[1 0.5];[0 sqrt(3)/2]]
 	x = gr.k * (x1 + 0.5*y1)
 	y = gr.k * y1 * (math.Sqrt(3) / 2)
 	return
@@ -88,9 +81,6 @@ func (gr *Grid_cell) Fireact(x, y float64) float64 {
 	}
 	curpeaksitex := int(xstartidx+gr.cycle+1.0) + minplacex
 	curpeaksitey := int(ystartidx+gr.cycle+1.0) + minplacey
-	//	fmt.Println("curpeaksitex", curpeaksitex)
-	//	fmt.Println("curpeaksitey", curpeaksitey)
-
 	if gr.Mh[curpeaksitex][curpeaksitey] == 0.0 {
 		gr.Mh[curpeaksitex][curpeaksitey] = gr.hmean + gr.hdev*(rand.Float64()-0.5)*2
 		if gr.Mh[curpeaksitex][curpeaksitey] > 1 {
