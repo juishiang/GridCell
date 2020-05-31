@@ -92,7 +92,7 @@ func (gr *Grid_cell) Fireact(x, y float64) float64 {
 			curpeaksitex := xstartidx + gr.cyc + i
 			curpeaksitey := ystartidx + gr.cyc + j
 			if gr.Mh[curpeaksitex][curpeaksitey] == 0.0 {
-				gr.Mh[curpeaksitex][curpeaksitey] = gr.hmean + gr.hdev*(rand.Float64()-0.5)*2
+				gr.Mh[curpeaksitex][curpeaksitey] = gr.hmean + gr.hdev*rand.NormFloat64() //gr.hdev*(rand.Float64()-0.5)*2
 				if gr.Mh[curpeaksitex][curpeaksitey] > 1 {
 					gr.Mh[curpeaksitex][curpeaksitey] = 1
 				} else if gr.Mh[curpeaksitex][curpeaksitey] < 0 {
