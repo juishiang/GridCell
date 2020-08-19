@@ -41,9 +41,9 @@ func (gr *Grid_cell) Init(cyc int, x1off, y1off, spsiz, hm, hd, pd float64) bool
 	gr.offset[0], gr.offset[1] = gr.TDeltaInv(x1off, y1off) //x1off, y1off [0 1]. Use rand.Float64() to generate number from 0-1.
 	//gr.offset[0] = x1off * gr.k
 	//gr.offset[1] = y1off * gr.k
-	gr.Mh = make([][]float64, int(gr.cycle*3))
+	gr.Mh = make([][]float64, int(gr.cycle*4))
 	for i := range gr.Mh {
-		gr.Mh[i] = make([]float64, int(gr.cycle*3))
+		gr.Mh[i] = make([]float64, int(gr.cycle*4))
 	}
 	return true
 }
@@ -60,7 +60,14 @@ func (gr *Grid_cell) TDeltaInv(x1, y1 float64) (x, y float64) {
 	return
 }
 
-func (gr *Grid_cell) Fireact(x, y float64) float64 {
+func (gr *Grid_cell) rotate(x1, y1, theta float64) (x, y float64) {
+	x = math.Cos((math.Pi/180)*theta)*x1 - math.Sin((math.Pi/180)*theta)*y1
+	y = math.Cos((math.Pi/180)*theta)*y1 + math.Sin((math.Pi/180)*theta)*x1
+	return
+}
+
+func (gr *Grid_cell) Fireact(x, y, theta float64) float64 {
+	x, y = gr.rotate(x, y, theta)
 	gr.CurX = x
 	gr.CurY = y
 	x = x - gr.offset[0]
@@ -89,8 +96,9 @@ func (gr *Grid_cell) Fireact(x, y float64) float64 {
 	gr.Firerate = 0.0
 	for i := 0; i < 2; i++ {
 		for j := 0; j < 2; j++ {
-			curpeaksitex := xstartidx + gr.cyc + i
-			curpeaksitey := ystartidx + gr.cyc + j
+			curpeaksitex := xstartidx + gr.cyc*2 + i
+			curpeaksitey := ystartidx + gr.cyc*2 + j
+			//println(curpeaksitex, curpeaksitey)
 			if gr.Mh[curpeaksitex][curpeaksitey] == 0.0 {
 				gr.Mh[curpeaksitex][curpeaksitey] = gr.hmean + gr.hdev*rand.NormFloat64() //gr.hdev*(rand.Float64()-0.5)*2
 				if gr.Mh[curpeaksitex][curpeaksitey] > 1 {
