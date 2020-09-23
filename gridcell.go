@@ -1,6 +1,7 @@
 package gridcell
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -18,6 +19,7 @@ func (grly *Grid_layer) Init(num int64) {
 type Grid_cell struct {
 	cycle     float64
 	cyc       int
+	maxcycidx int
 	offset    [2]float64
 	spacesize float64
 	k         float64
@@ -41,10 +43,17 @@ func (gr *Grid_cell) Init(cyc int, x1off, y1off, spsiz, hm, hd, pd float64) bool
 	gr.offset[0], gr.offset[1] = gr.TDeltaInv(x1off, y1off) //x1off, y1off [0 1]. Use rand.Float64() to generate number from 0-1.
 	//gr.offset[0] = x1off * gr.k
 	//gr.offset[1] = y1off * gr.k
-	gr.Mh = make([][]float64, int(gr.cycle*4))
+	gr.maxcycidx = int(gr.cycle * 4.0)
+	gr.Mh = make([][]float64, gr.maxcycidx)
 	for i := range gr.Mh {
-		gr.Mh[i] = make([]float64, int(gr.cycle*4))
+		gr.Mh[i] = make([]float64, gr.maxcycidx)
 	}
+	return true
+}
+func (gr *Grid_cell) AcK(k, x1off, y1off, pd float64) bool {
+	gr.k = k
+	gr.placedev = pd * gr.k
+	gr.offset[0], gr.offset[1] = gr.TDeltaInv(x1off, y1off)
 	return true
 }
 
@@ -96,8 +105,12 @@ func (gr *Grid_cell) Fireact(x, y, theta float64) float64 {
 	gr.Firerate = 0.0
 	for i := 0; i < 2; i++ {
 		for j := 0; j < 2; j++ {
-			curpeaksitex := xstartidx + gr.cyc*2 + i
-			curpeaksitey := ystartidx + gr.cyc*2 + j
+			curpeaksitex := xstartidx + gr.maxcycidx/2 + i
+			curpeaksitey := ystartidx + gr.maxcycidx/2 + j
+			if (curpeaksitex < 0 || curpeaksitex >= gr.maxcycidx) || (curpeaksitey < 0 || curpeaksitey >= gr.maxcycidx) {
+				fmt.Println("fail: GG")
+				return 0.0
+			}
 			//println(curpeaksitex, curpeaksitey)
 			if gr.Mh[curpeaksitex][curpeaksitey] == 0.0 {
 				gr.Mh[curpeaksitex][curpeaksitey] = gr.hmean + gr.hdev*rand.NormFloat64() //gr.hdev*(rand.Float64()-0.5)*2
@@ -112,5 +125,11 @@ func (gr *Grid_cell) Fireact(x, y, theta float64) float64 {
 			gr.Firerate += gr.Mh[curpeaksitex][curpeaksitey] * math.Exp(-(min / (2 * math.Pow(gr.placedev, 2))))
 		}
 	}
-	return gr.Firerate
+	if gr.Firerate >= 1.0 {
+		return 1.0
+	} else if gr.Firerate <= 0.0 {
+		return 0.0
+	} else {
+		return gr.Firerate
+	}
 }
