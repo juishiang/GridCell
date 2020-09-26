@@ -29,9 +29,9 @@ type Gridcellcos struct {
 func (grcos *Gridcellcos) Init(spacing, ori, offx, offy, origori float64) {
 	grcos.spacing = spacing
 	grcos.k = (4 * math.Pi) / (math.Sqrt(3.0) * spacing)
-	grcos.origori = origori * (math.Pi / 180)
-	grcos.ori = (origori + ori) * (math.Pi / 180)
-	grcos.offx = offx
+	grcos.origori = origori * (math.Pi / 180.0)
+	grcos.ori = (origori + ori) * (math.Pi / 180.0)
+	grcos.offx = offx * (math.Sqrt(3.0) / 2.0)
 	grcos.offy = offy
 }
 
@@ -41,14 +41,14 @@ func (grcos *Gridcellcos) Activation(curx, cury float64, plus bool) float64 {
 	x := curx - grcos.offx
 	y := cury - grcos.offy
 	ori1 := grcos.ori
-	ori2 := ori1 + (math.Pi/180)*60
-	ori3 := ori2 + (math.Pi/180)*60
+	ori2 := ori1 + (math.Pi/180.0)*60.0
+	ori3 := ori2 + (math.Pi/180.0)*60.0
 	Fk1 := math.Cos(grcos.k * ((x)*math.Sin(ori1) + (y)*math.Cos(ori1)))
 	Fk2 := math.Cos(grcos.k * ((x)*math.Sin(ori2) + (y)*math.Cos(ori2)))
 	Fk3 := math.Cos(grcos.k * ((x)*math.Sin(ori3) + (y)*math.Cos(ori3)))
 	if plus {
 		//grcos.firingrate = (Fk1 + Fk2 + Fk3 + 3.0) / 6.0 //(2.0 / 3.0) * ((1.0/3.0)*(Fk1+Fk2+Fk3) + 0.5)
-		grcos.firingrate = (Fk1 + Fk2 + Fk3 - 1) / 2.0 //(2.0 / 3.0) * ((1.0/3.0)*(Fk1+Fk2+Fk3) + 0.5)
+		grcos.firingrate = (Fk1 + Fk2 + Fk3 - 1.0) / 2.0 //(2.0 / 3.0) * ((1.0/3.0)*(Fk1+Fk2+Fk3) + 0.5)
 	} else {
 		grcos.firingrate = (1.0 + Fk1) * (1.0 + Fk2) * (1.0 + Fk3) * (1.0 / 8.0)
 	}
