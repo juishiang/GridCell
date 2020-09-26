@@ -31,8 +31,10 @@ func (grcos *Gridcellcos) Init(spacing, ori, offx, offy, origori float64) {
 	grcos.k = (4 * math.Pi) / (math.Sqrt(3.0) * spacing)
 	grcos.origori = origori * (math.Pi / 180.0)
 	grcos.ori = (origori + ori) * (math.Pi / 180.0)
-	grcos.offx = offx * (math.Sqrt(3.0) / 2.0)
-	grcos.offy = offy
+	offx = offx * (math.Sqrt(3.0) / 2.0)
+	/// orientation direction is clockwise
+	grcos.offx = math.Cos((math.Pi/180)*ori)*offx + math.Sin((math.Pi/180)*ori)*offy
+	grcos.offy = math.Cos((math.Pi/180)*ori)*offy - math.Sin((math.Pi/180)*ori)*offx
 }
 
 func (grcos *Gridcellcos) Activation(curx, cury float64, plus bool) float64 {
